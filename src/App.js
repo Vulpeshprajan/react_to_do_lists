@@ -1,14 +1,45 @@
 
 import './App.css';
-import Alert from "react-bootstrap/Alert";
+import { useState } from "react";
+import { Container, Row, Col } from "react-bootstrap";
 
-function App() {
+import {AddTaskForm  } from "./components/forms/AddTaskForm.js";
+import {NotToDOList  } from "./components/task-lists/NotToDOList.js";
+import {TaskLists  } from "./components/task-lists/TaskLists.js";
+
+const  App = () =>  {
+
+  
+const [task, setTask] = useState([])
+
+const addTaskList = frmDt => {
+  setTask([
+    ...task,
+    frmDt
+  ])
+
+}
+
   return (
-    <div className="App">
-      <header className="App-header">
-   <Alert variant="danger"> Hello World </Alert>
-      </header>
-    </div>
+     <Container >
+       <Row>
+         <Col>
+          <h1 className= "text-center"> TO Do Lists</h1>
+         </Col>
+       </Row>
+       <hr />
+       <AddTaskForm addTaskList = {addTaskList}/>
+       <hr />
+       
+       <Row>
+         <Col> 
+          <TaskLists task= {task}  />
+         </Col>
+         <Col> <NotToDOList/>
+         </Col>
+       </Row>
+     </Container>
+
   );
 }
 
