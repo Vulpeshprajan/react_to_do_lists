@@ -1,8 +1,8 @@
 import React from 'react'
-import { Table } from 'react-bootstrap'
+import { Table, Alert } from 'react-bootstrap'
 
-export const TaskLists = ({task}) => {
-  console.log(task)
+
+export const TaskLists = ({task,markAsBadList, taskHrs , handleOnTaskClicked, taskToDelete}) => {
     return (
         <div>
             <h2> Task Lists</h2>
@@ -24,28 +24,22 @@ export const TaskLists = ({task}) => {
     return (
       <tr key={i}>
     
-      <td><input type= "checkbox"/> <label>{item.task} </label></td>
+      <td><input type= "checkbox" 
+      checked = {taskToDelete.includes(i)}
+      defaultValue = {i}
+      onChange = {handleOnTaskClicked}
+      /> <label>{item.task} </label></td>
       <td>{item.hr}</td>
-      <td><button className="btn-sm bg-danger rounded-pill"><i className="fas fa-minus-circle"></i> Mark as NTD </button></td>
+      <td><button onClick={() => markAsBadList(i)} className="btn-sm bg-danger rounded-pill"><i className="fas fa-minus-circle"></i> Mark as NTD </button></td>
      
     </tr>
     )
-
-
-
   })
-
-
-
 }
-        
-
-
-
-    
-   
   </tbody>
 </Table>
+<Alert variant ="success"> You have save = {taskHrs} hr/week
+         </Alert>
         </div>
     )
 }
