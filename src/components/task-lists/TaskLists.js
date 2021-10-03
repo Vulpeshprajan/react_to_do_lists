@@ -25,12 +25,12 @@ export const TaskLists = ({task,markAsBadList, taskHrs , handleOnTaskClicked, ta
       <tr key={i}>
     
       <td><input type= "checkbox" 
-      checked = {taskToDelete.includes(i)}
-      defaultValue = {i}
+      checked = {taskToDelete.includes(item._id)}
+      defaultValue = {item._id}
       onChange = {handleOnTaskClicked}
       /> <label>{item.task} </label></td>
       <td>{item.hr}</td>
-      <td><button onClick={() => markAsBadList(i)} className="btn-sm bg-danger rounded-pill"><i className="fas fa-minus-circle"></i> Mark as NTD </button></td>
+      <td><button onClick={() => markAsBadList(item._id)} className="btn-sm bg-danger rounded-pill"><i className="fas fa-minus-circle"></i> Mark as NTD </button></td>
      
     </tr>
     )

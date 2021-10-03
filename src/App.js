@@ -1,13 +1,20 @@
 
 import './App.css';
-import { useState } from "react";
-import { Container, Row, Col, Alert, Button } from "react-bootstrap";
+import { useState, useEffect } from "react";
+import { Container, Row, Col, Alert, Button, Spinner } from "react-bootstrap";
 
 import { AddTaskForm } from "./components/forms/AddTaskForm.js";
 import { NotToDOList } from "./components/task-lists/NotToDOList.js";
 import { TaskLists } from "./components/task-lists/TaskLists.js";
-import { createTask } from "./apis/taskApi";
-const hrPwk = 168
+import { createTask, getTaskLists, switchTask, deleteTasks } from "./apis/taskApi";
+
+const hrPWk = 168
+const initialResponse = {
+  status: "",
+  message: ""
+
+}
+
 const App = () => {
 
 
@@ -15,7 +22,9 @@ const App = () => {
   const [badTask, setBadTask] = useState([])
   const [err, setErr] = useState(false)
   const [taskToDelete, setTaskToDelete] = useState([])
-  const [badTaskToDelete, setBadTaskToDelete] = useState([])
+  // const [badTaskToDelete, setBadTaskToDelete] = useState([])
+
+  const [apiResponse , setApiResponse] = useState(initialResponse)
 
 
   const taskHrs = task.reduce((subttl, item) => subttl + +item.hr, 0)
@@ -23,45 +32,91 @@ const App = () => {
   const totalHrs = taskHrs + badHrs
 
 
+  useEffect(() => {
+    // fetch all the tickets from database
+    const fetchingAllTask = async () => {
+      const {result} =  await getTaskLists()
+      setTask(result)
+    }
+    fetchingAllTask()
+
+  }, [])
+
+  const fetchAllTasks = async() => {
+    const {result} = await getTaskLists()
+     
+      setTask(result)
+
+  }
+
+
   const addTaskList = async (frmDt) => {
 
-    const result = await createTask(frmDt)
-    console.log(result)
-
-    if (result._id) {
-
-
-
-    } else {
-      alert("unable to add ")
-
+    if (hrPWk < totalHrs + +frmDt.hr) {
+      setApiResponse({
+        status: "error",
+        message: "No enough hours left",
+  
+    
+      }); return
     }
 
+      
+    const result = await createTask(frmDt)
+    if (result._id) {
+      fetchAllTasks()
+      setApiResponse({
+        status: "success",
+        message: "New task has been added successfully ",
+      })
+    } else {
+      setApiResponse({
+        status: "error",
+        message: "No enough hours left",
+      })
+    
+      };
+
+    
+
+
+
+
+    
+  }
+
+
+
+
+  const markAsBadList = async _id => {
+   console.log(_id)
+    const dt = {
+      id: _id,
+      todo : false,
+    }
+
+    const res = await switchTask(dt)
+    console.log(res)
+    res.result._id && fetchAllTasks()
+
+
 
 
 
   }
 
+  const markAsGoodList = async _id => {
+  
+    const dt = {
+      id : _id,
+      todo : true,
+    }
 
-  const markAsBadList = i => {
-    const tempTaskLists = [...task]
-    const badTasks = tempTaskLists.splice(i, 1)[0];
+    const res = await switchTask(dt);
+   
+      res.result._id && fetchAllTasks()
+    
 
-    setBadTask([
-      ...badTask, badTasks
-    ])
-    setTask(tempTaskLists);
-
-  }
-
-  const markAsGoodList = i => {
-    const tempBadLists = [...badTask]
-    const goodTask = tempBadLists.splice(i, 1)[0];
-
-    setTask([
-      ...task, goodTask
-    ])
-    setBadTask(tempBadLists)
 
   }
 
@@ -71,58 +126,40 @@ const App = () => {
     const { checked, value } = e.target
 
     if (checked) {
-      setTaskToDelete([
-        ...taskToDelete, +value
-
-      ])
+      setTaskToDelete([...taskToDelete, value ])
     } else {
-      const filteredArg = taskToDelete.filter(item => item !== +value)
+      const filteredArg = taskToDelete.filter(item => item !== value)
       setTaskToDelete(filteredArg);
     }
 
   }
-  const handleOnBadTaskClicked = e => {
+ 
 
-    const { checked, value } = e.target
 
-    if (checked) {
-      setBadTaskToDelete([
-        ...badTaskToDelete, +value
-
-      ])
-    } else {
-      const filteredArg = badTaskToDelete.filter(item => item !== +value)
-      setBadTaskToDelete(filteredArg);
-    }
+  // delete list from task list
+  const handleOnDeleteItems = async () => {
+  //  request server to delete item from database
+    
+    const { deletedCount } = await deleteTasks({ ids: taskToDelete })
+    console.log(taskToDelete)
+    deletedCount > 0 && fetchAllTasks() && setApiResponse({
+      status: "danger",
+      message: "Selecterd task has been deleted successfully",
+    })
+    
+  
 
   }
 
-  // delete items from the task list only 
-  const deleteFromTaskLists = () => {
-    const newArg = task.filter((item, i) => !taskToDelete.includes(i));
-    setTaskToDelete([])
 
-    setTask(newArg)
-  }
-  // delete items from the bad task list only 
-  const deleteFromBadTaskLists = () => {
-    const newArg = badTask.filter((item, i) => !badTaskToDelete.includes(i));
-    setBadTaskToDelete([])
-    setBadTask(newArg)
-  }
+// task list only
+const taskListsOnly  = task.filter(item => item.todo)
 
 
+// bad list only 
+const badTaskListsOnly  = task.filter (item => !item.todo)
 
-
-  // delete list from task list and bad list 
-  const handleOnDeleteItems = () => {
-    deleteFromTaskLists()
-    deleteFromBadTaskLists()
-  }
-
-
-  console.log(badTask, badTaskToDelete)
-
+  
 
 
 
@@ -137,9 +174,9 @@ const App = () => {
       <hr />
       <Row>
         <Col>
-          {err && (
-            <Alert variant="danger">
-              You don't have enough hr to allocated task
+          {apiResponse.message && (
+            <Alert variant={apiResponse.status ==="success"? "success" : "danger"}>
+              {apiResponse.message}
             </Alert>
 
           )}
@@ -150,19 +187,22 @@ const App = () => {
 
       <Row>
         <Col>
+        
+          {!task.length && !badTask.length && ( <Spinner animation="border" variant="primary "/> )}
+          
           <TaskLists
-            task={task}
+            task={taskListsOnly}
             taskHrs={taskHrs}
             markAsBadList={markAsBadList}
             handleOnTaskClicked={handleOnTaskClicked}
             taskToDelete={taskToDelete} />
         </Col>
         <Col> <NotToDOList
-          badTask={badTask}
+          badTask={badTaskListsOnly}
           badHrs={badHrs}
           markAsGoodList={markAsGoodList}
-          handleOnBadTaskClicked={handleOnBadTaskClicked}
-          badTaskToDelete={badTaskToDelete} />
+          handleOnBadTaskClicked={handleOnTaskClicked}
+          badTaskToDelete={taskToDelete} />
         </Col>
       </Row>
       <Row>
