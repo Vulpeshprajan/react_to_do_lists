@@ -38,7 +38,7 @@ export const getTaskLists = () => {
 
 // switch task between todo and noto do list  
 export const switchTask = (taskInfo) => {
-    return new Promise(async (resolve) => {
+    return new Promise(async (resolve, reject) => {
 
         try {
             const {data} = await axios.patch(taskApi, taskInfo)
@@ -46,7 +46,7 @@ export const switchTask = (taskInfo) => {
             
         } catch (error) {
             console.log(error)
-            resolve(false)
+            reject(false)
         }
         
     }

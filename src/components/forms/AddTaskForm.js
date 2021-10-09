@@ -1,7 +1,9 @@
 
 
 import React, { useState } from 'react'
+import {useDispatch, useSelector  } from "react-redux";
 import { Col, Form, Row, Button, Container } from 'react-bootstrap'
+import {addTask} from "../task-lists/taskAction";
 
 const initialState = {
   task: "Coding",
@@ -10,9 +12,11 @@ const initialState = {
 }
 
 
-export const AddTaskForm = ({ addTaskList }) => {
+export const AddTaskForm = () => {
 
-
+  const dispatch = useDispatch()
+  const {totalHrs} = useSelector(state => state.task)
+  
   const [frmData, setFrmData] = useState(initialState)
 
 
@@ -27,7 +31,12 @@ export const AddTaskForm = ({ addTaskList }) => {
 
   const handleOnSubmit = (e) => {
     e.preventDefault();
-    addTaskList(frmData);
+    if (totalHrs + +frmData.hr > 168) {
+      return alert("Not enough time to add more task")
+    }
+      
+    dispatch(addTask(frmData))
+    // addTaskList(frmData);
   }
 
 

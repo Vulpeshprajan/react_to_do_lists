@@ -1,11 +1,15 @@
 import React from 'react'
 import { Table, Alert } from 'react-bootstrap'
+import { useSelector, useDispatch } from "react-redux";
+import { setTaskToDelete } from './taskSlice';
 
-export const NotToDOList = ({ badTask,
-  markAsGoodList,  handleOnBadTaskClicked, badTaskToDelete }) => {
+export const NotToDOList = ({ 
+  markAsGoodList  }) => {
   
+  const { badTaskLists, taskToDelete } = useSelector(state => state.task)
   
-  const badHrs = badTask.reduce((subTtl, item) => subTtl + item.hr, 0 )
+  const dispatch = useDispatch()
+  const badHrs = badTaskLists.reduce((subTtl, item) => subTtl + item.hr, 0 )
   
   
     return (
@@ -23,14 +27,14 @@ export const NotToDOList = ({ badTask,
     </thead>
     <tbody>
 {
-  badTask.map((item, i) => {
+  badTaskLists.map((item, i) => {
     return (
       <tr key={i}>
     
       <td><input type= "checkbox"
-       checked = {badTaskToDelete.includes(item._id)}
+       checked = {taskToDelete.includes(item._id)}
       defaultValue = {item._id}
-      onChange = {handleOnBadTaskClicked}
+      onChange = {(e) => dispatch(setTaskToDelete(e.target))}
       
       /> <label>{item.task} </label></td>
       <td>{item.hr}</td>
