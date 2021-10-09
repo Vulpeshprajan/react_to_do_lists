@@ -1,10 +1,10 @@
 import React from 'react'
-import { Table, Alert } from 'react-bootstrap'
+import { Table, Alert, Button } from 'react-bootstrap'
 import { useSelector, useDispatch } from "react-redux";
+import { taskSwitcher } from './taskAction';
 import { setTaskToDelete } from './taskSlice';
 
-export const NotToDOList = ({ 
-  markAsGoodList  }) => {
+export const NotToDOList = () => {
   
   const { badTaskLists, taskToDelete } = useSelector(state => state.task)
   
@@ -34,11 +34,15 @@ export const NotToDOList = ({
       <td><input type= "checkbox"
        checked = {taskToDelete.includes(item._id)}
       defaultValue = {item._id}
-      onChange = {(e) => dispatch(setTaskToDelete(e.target))}
+      onChange = {e => dispatch(setTaskToDelete(e.target))}
       
       /> <label>{item.task} </label></td>
       <td>{item.hr}</td>
-      <td><button onClick={() => markAsGoodList(item._id)} className="btn-sm bg-danger rounded-pill"><i className="fas fa-minus-circle"></i> Mark as TD </button></td>
+        <td>
+          <Button onClick={() => dispatch(taskSwitcher({id: item._id, todo: true }))}
+            className="btn-sm bg-danger rounded-pill">
+            <i className="fas fa-minus-circle">
+            </i> Mark as TD </Button></td>
     </tr>
     )
   })

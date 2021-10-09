@@ -1,6 +1,6 @@
-import { requestPending, addTaskSuccess, requestFail, fetchTaskSuccess, deleteTaskSuccess } from "./taskSlice"
+import { requestPending, addTaskSuccess, requestFail, fetchTaskSuccess, deleteTaskSuccess,updateTaskSuccess } from "./taskSlice"
 
-import {createTask, getTaskLists, deleteTasks} from "../../apis/taskApi";
+import {createTask, getTaskLists, deleteTasks, switchTask} from "../../apis/taskApi";
 
 export const addTask = (newTask) => async dispatch => {
     try {
@@ -62,7 +62,7 @@ export const handleOnDeleteItems = taskToDelete => async dispatch => {
         dispatch(deleteTaskSuccess(result))
         result.status === "success" && dispatch(fetchTaskLists())
         
-      console.log(result)
+ 
         
     } catch (error) {
         dispatch(requestFail({
@@ -79,46 +79,21 @@ export const handleOnDeleteItems = taskToDelete => async dispatch => {
     
 
 
-export const taskSwitch = async taskObj => {
-    
-    try {
-    
-    const res = await switchTask(dt)
-         console.log(res)
-    } catch (error) {
-        dispatch(requestFail({
-            status: "error",
-            message: error.message,
+export const taskSwitcher = taskObj => async dispatch => {
+	try {
+		dispatch(requestPending());
 
-        }))
-
-    
-}
-
-    const markAsBadList = async _id => {
-        console.log(_id)
-         const dt = {
-           id: _id,
-           todo : false,
-         }
-     
-         
-
-     
-       }
-     
-       const markAsGoodList = async _id => {
-       
-         const dt = {
-           id : _id,
-           todo : true,
-         }
-     
-         const res = await switchTask(dt);
-
-     
-       }
-     
-
-
-}
+		//server request
+		const res = await switchTask(taskObj);
+        dispatch(updateTaskSuccess(res));
+        
+		res?.status === "success" && dispatch(fetchTaskLists());
+	} catch (error) {
+		dispatch(
+			requestFail({
+				status: "error",
+				message: error.message,
+			})
+		);
+	}
+};

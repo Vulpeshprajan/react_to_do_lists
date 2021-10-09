@@ -64,6 +64,12 @@ const taskSlice = createSlice({
             state.message = payload.message;
         },
     
+        updateTaskSuccess: (state, { payload }) => {
+            state.isPending = false;
+            state.status = payload.status;
+            state.message = payload.message;
+        },
+    
     
         
 
@@ -83,6 +89,6 @@ const taskSlice = createSlice({
 
 const { reducer, actions } = taskSlice
 
-export const { requestPending, addTaskSuccess, requestFail, fetchTaskSuccess,setTaskToDelete, deleteTaskSuccess} = actions
+export const { requestPending, addTaskSuccess, requestFail, fetchTaskSuccess,setTaskToDelete, deleteTaskSuccess, updateTaskSuccess} = actions
 
 export default reducer;

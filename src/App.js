@@ -62,17 +62,10 @@ const App = () => {
         
           {isPending && ( <Spinner animation="border" variant="primary "/> )}
           
-          <TaskLists
-
-            markAsBadList={markAsBadList}
-        
-            />
+          <TaskLists/>
         </Col>
-        <Col> <NotToDOList
-        
-          markAsGoodList={markAsGoodList}
-        
-          />
+        <Col>
+          <NotToDOList />
         </Col>
       </Row>
       <Row>

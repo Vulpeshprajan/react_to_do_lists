@@ -1,13 +1,14 @@
 import React from 'react'
-import { Table, Alert } from 'react-bootstrap'
+import { Table, Alert, Button } from 'react-bootstrap'
 
 import { useSelector, useDispatch } from "react-redux";
 import { setTaskToDelete } from "./taskSlice";
+import { taskSwitcher} from "./taskAction";
 
 
-export const TaskLists = ({ markAsBadList, taskHrs}) => {
+export const TaskLists = () => {
 
-  const {taskLists, taskToDelete} = useSelector(state =>  state.task )
+  const {taskLists, taskToDelete, taskHrs} = useSelector(state =>  state.task )
 
   const dispatch = useDispatch()
 
@@ -39,7 +40,9 @@ export const TaskLists = ({ markAsBadList, taskHrs}) => {
       onChange = {e => dispatch(setTaskToDelete(e.target))}
       /> <label>{item.task} </label></td>
       <td>{item.hr}</td>
-      <td><button onClick={() => markAsBadList(item._id)} className="btn-sm bg-danger rounded-pill"><i className="fas fa-minus-circle"></i> Mark as NTD </button></td>
+        <td>
+          <Button onClick={() => dispatch(taskSwitcher({id: item._id, todo: false }))}
+          className="btn-sm bg-danger rounded-pill"><i className="fas fa-minus-circle"></i> Mark as NTD </Button></td>
      
     </tr>
     )
